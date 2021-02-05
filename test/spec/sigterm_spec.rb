@@ -1,6 +1,6 @@
 require_relative "spec_helper"
 
-describe "A PHP application" do
+describe "A PHP application", :focused => true do 
 	context "with an index.php that allows for different execution times" do
 		['apache2', 'nginx'].each do |server|
 			context "running the #{server} web server" do
