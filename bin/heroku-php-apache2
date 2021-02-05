@@ -418,7 +418,12 @@ cleanup() {
 	rm -f ${wait_pipe} || true;
 	echo "Shutdown complete." >&2
 }
-trap 'trap - TERM EXIT; echo "SIGTERM received, attempting graceful shutdown..." >&2; cleanup USR1; kill -TERM $$' TERM
+trap 'trap - TERM QUIT EXIT; echo "SIGQUIT received, attempting graceful shutdown..." >&2; cleanup USR1; kill -QUIT $$' QUIT
+if [[ $graceful_sigterm ]]; then
+	trap 'trap - TERM QUIT EXIT; echo "SIGTERM received, attempting graceful shutdown..." >&2; cleanup USR1; kill -TERM $$' TERM
+else
+	trap 'trap - TERM QUIT EXIT; echo "SIGTERM received, attempting fast shutdown..." >&2; cleanup TERM; kill -TERM $$' TERM
+fi
 # on "regular" EXIT (i.e. when we reached the end of the script because a process exited unexpectedly) just clean up and let the exit status bubble through (see last line)
 trap 'trap - EXIT; echo "Process exited unexpectedly: $exitproc, shutting down..." >&2; cleanup USR1' EXIT
 
